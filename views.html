@@ -1,0 +1,51 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+from app import app
+import random
+
+@app.route('/')
+@app.route('/index')
+def index():
+   return render_template('index.html', title='Home')
+   
+@app.route('/credits')
+def credits():
+   return render_template('credits.html', title='Credits')
+
+@app.route('/post', methods=['POST'])   
+def post():
+   form = request.form['movie1']
+   movies = form.split(';')
+   movies = filter(None, movies)
+   if (len(movies) == 0):  
+         return redirect(url_for('index'))    
+
+   
+   favorites = movies  
+   #call algorithm to find similar movies and store into 'movies'
+   movies = genmovies()   
+   return render_template('results2.html', title='Movie Suggestions',
+   movies=movies, favorites=favorites)
+   
+   #for not user-refined queries
+   #return render_template('results.html', title='Movie Suggestions', movies=movies)
+   
+@app.route('/post2', methods=['POST'])   
+def post2():
+   movies = request.form.getlist('movie1')
+   favorites = request.form.getlist('movie2')
+   #if (len(movies) == 0):  
+   #     return render_template('result2.html', title='Movie Suggestions',
+   #	 movies=movies, favorites=favorites)
+    
+   favorites = favorites + movies
+   favorites = list(set(favorites))
+   
+   #call algorithm to find similar movies and store into 'movies'
+   movies = genmovies()
+   
+   return render_template('results2.html', title='Movie Suggestions',
+   movies=movies, favorites=favorites)
+   
+def genmovies():
+   return random.sample(xrange(100), 6)
+   
